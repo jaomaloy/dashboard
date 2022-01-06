@@ -143,6 +143,7 @@ class GrafanaDashGen():
 
             print('New field found: ' + fieldname + ' (' + fieldtype + ')')
             self.add_field_to_dashboard(fieldname, fieldtype, data['name'])
+            self.add_target_to_panel(3, fieldname, data['name'])
             self.add_to_history(fieldname, data['name'])
 
         # store this in grafana
@@ -204,6 +205,20 @@ class GrafanaDashGen():
         # With every new dashboard we add a summary panel first
         self.add_summary_panel_to_dashboard(measurement)
 
+        # With every new dashboard we add a summary panel first
+        self.add_custom_panel_to_dashboard('heatmap', 'Data Heatmap')
+
+    def add_custom_panel_to_dashboard(self, paneltype, name):
+        self.create_row(name, False)
+
+        newpanel = self.load_panel(paneltype)
+        self.current_id = self.current_id + 1
+        newpanel['id'] = self.current_id
+        newpanel['title'] = self.generate_panel_name(name)
+
+        self.dashboard['panels'].append(self.row)
+        self.dashboard['panels'].append(newpanel)
+        self.row = None
 
     def add_field_to_dashboard(self, fieldname, fieldtype, measurement):
         # Take the existing dashboard JSON and inject the appropriate panel JSON
@@ -222,6 +237,32 @@ class GrafanaDashGen():
 
         self.dashboard['panels'].append(self.row)
         self.row = None
+
+    def add_target_to_panel(self, panelindex, fieldname, measurement):
+        print('Custom: adding target to', panelindex)
+        # refId = chr(index)
+        newfieldname = fieldname.replace('data_', '', 1)
+
+        # Sets the default dashboard to provided id
+        target = {
+            'alias': newfieldname,
+            'measurement': measurement,
+            'query': f"SELECT \"{fieldname}\" FROM \"mqtt_consumer\" WHERE $timeFilter",
+            'rawQuery': True,
+            'refId': f"{fieldname}",
+            'select': [
+                [
+                    {
+                        'params': [
+                            f"{fieldname}"
+                        ],
+                        'type': 'field'
+                    }
+                ]
+            ]
+        }
+
+        self.dashboard['panels'][panelindex]['targets'].append(target)
 
     def add_panel_to_row(self, paneltype, fieldname, measurement):
         newpanel = self.load_panel(paneltype)
