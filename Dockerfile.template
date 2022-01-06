@@ -22,7 +22,7 @@ RUN apt-get update && \
       apt-get download \      
       # libfontconfig1 \      
       $(apt-rdepends python3  | grep -v "^ " | sed 's/debconf-2.0/debconf/g') \
-      $(apt-rdepends libfontconfig1  | grep -v "^ " | sed 's/fonts-freefont/fonts-freefont-otf/g' | sed 's/debconf-2.0/debconf/g')
+      $(apt-rdepends libfontconfig1  | grep -v "^ " | sed 's/fonts-freefont/fonts-freefont/g' | sed 's/debconf-2.0/debconf/g')
 
 RUN cp /tmp/grafana.deb ./
 
