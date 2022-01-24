@@ -30,6 +30,7 @@
         "show": true,
         "showHistogram": true
     },
+    "tooltipDecimals": 2,
     "type": "heatmap",
     "xAxis": {
         "show": true

@@ -208,18 +208,6 @@ class GrafanaDashGen():
         # With every new dashboard we add a summary panel first
         self.add_custom_panel_to_dashboard('heatmap', 'Data Heatmap')
 
-    def add_custom_panel_to_dashboard(self, paneltype, name):
-        self.create_row(name, False)
-
-        newpanel = self.load_panel(paneltype)
-        self.current_id = self.current_id + 1
-        newpanel['id'] = self.current_id
-        newpanel['title'] = self.generate_panel_name(name)
-
-        self.dashboard['panels'].append(self.row)
-        self.dashboard['panels'].append(newpanel)
-        self.row = None
-
     def add_field_to_dashboard(self, fieldname, fieldtype, measurement):
         # Take the existing dashboard JSON and inject the appropriate panel JSON
         # We are interested in .panels[]
@@ -256,6 +244,7 @@ class GrafanaDashGen():
                         'params': [
                             f"{fieldname}"
                         ],
+                        'format': "none",
                         'type': 'field'
                     }
                 ]
@@ -291,6 +280,17 @@ class GrafanaDashGen():
         self.dashboard['panels'].append(newpanel)
         self.row = None
 
+    def add_custom_panel_to_dashboard(self, paneltype, name):
+        self.create_row(name, False)
+
+        newpanel = self.load_panel(paneltype)
+        self.current_id = self.current_id + 1
+        newpanel['id'] = self.current_id
+        newpanel['title'] = self.generate_panel_name(name)
+
+        self.dashboard['panels'].append(self.row)
+        self.dashboard['panels'].append(newpanel)
+        self.row = None
 
     def create_row(self, title, collapsed = True):
         row = self.load_panel('row')
